@@ -27,7 +27,9 @@ export default {
   ** Global CSS
   */
   css: [
-    'ant-design-vue/dist/antd.css'
+    'ant-design-vue/dist/antd.css',
+    'mdui/dist/css/mdui.css',
+    'assets/main.css'
   ],
 
   /*

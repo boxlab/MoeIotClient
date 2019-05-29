@@ -12,11 +12,12 @@
     "test": "jest"
   },
   "dependencies": {
-    "cross-env": "^5.2.0",
-    "nuxt": "^2.4.0",
-    "ant-design-vue": "^1.1.10",
     "@nuxtjs/axios": "^5.3.6",
-    "@nuxtjs/pwa": "^2.6.0"
+    "@nuxtjs/pwa": "^2.6.0",
+    "ant-design-vue": "^1.1.10",
+    "cross-env": "^5.2.0",
+    "mdui": "^0.4.2",
+    "nuxt": "^2.4.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.9",
