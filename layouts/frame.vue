@@ -46,13 +46,18 @@
           {path: '/', title: '概览', icon: 'home'},
           {path: '/control', title: '控制', icon: 'settings'},
         ],
-        loading: false,
-        title: '概览'
+        loading: true,
+        title: '',
+        WEBSOCKET: null,
+        HEARTBEAT: null,
+        SOCKET_SERVER: 'ws://localhost:18770',
+        RECONNECTING: false,
       }
     },
     mounted() {
       mdui.mutation();
       this.updateTitle();
+      this.initWS();
     },
     methods: {
       updateTitle() {
@@ -60,7 +65,79 @@
           if (this.pathInfo[i].path === this.$route.path)
             this.title = this.pathInfo[i].title;
         }
-      }
+      },
+
+      /*
+       * WebSocket
+       */
+
+      initWS() {
+        let self = this;
+        if (self.WEBSOCKET === null) {
+          try {
+            self.WEBSOCKET = new WebSocket(self.SOCKET_SERVER);
+          } catch (e) {
+            console.error('passed failed connection');
+          }
+        }
+        self.WEBSOCKET.onopen = self.handleOpen;
+        self.WEBSOCKET.onmessage = self.handleMessage;
+        self.WEBSOCKET.onerror = self.handleError;
+        self.WEBSOCKET.onclose = self.handleClose;
+        if (self.HEARTBEAT !== null) {
+          clearInterval(self.HEARTBEAT);
+          self.HEARTBEAT = null;
+        }
+        self.HEARTBEAT = setInterval(function () {
+          self.wsSend(self.makeRequest('ping'));
+        }, 30 * 1000)
+      },
+      handleOpen() {
+        this.loading = false;
+        this.RECONNECTING = false;
+      },
+      handleMessage(e) {
+        this.$message.info(e.data);
+      },
+      handleError() {
+        this.loading = true;
+        if (!this.RECONNECTING) {
+          this.wsReconnect();
+          this.RECONNECTING = true;
+        }
+      },
+      handleClose(e) {
+        this.loading = true;
+        if (!this.RECONNECTING) {
+          this.wsReconnect();
+          this.RECONNECTING = true;
+        }
+      },
+      wsSend(data) {
+        if (this.WEBSOCKET !== null)
+          this.WEBSOCKET.send(JSON.stringify(data));
+      },
+      async wsReconnect() {
+        console.warn('Start reconnect');
+        let self = this;
+        let interval = setInterval(function () {
+          console.warn('loop...');
+          if (self.loading) {
+            self.WEBSOCKET = null;
+            self.initWS();
+            console.warn('reconnect');
+          } else {
+            clearInterval(interval);
+          }
+        }, 2000);
+      },
+      makeRequest(action, data = null) {
+        let request = {
+          action: action,
+          data: data === null ? '' : data
+        };
+        return request
+      },
     },
     watch: {
       $route(to, from) {
