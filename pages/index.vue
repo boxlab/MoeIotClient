@@ -10,7 +10,8 @@
               <p>温度</p>
             </div>
             <div class="mdui-col-xs-6" style="text-align: center;">
-              <a-progress type="dashboard" :percent="0" :format="percent => `${percent}%`"/>
+              <a-progress type="dashboard" :percent="$store.state.dataholder.sensors.humi"
+                          :format="percent => `${percent}%`"/>
               <p>湿度</p>
             </div>
           </div>
@@ -23,7 +24,7 @@
             <li class="mdui-list-item mdui-ripple mdui-typo">
               <i class="mdui-list-item-icon mdui-icon material-icons">highlight</i>
               <div class="mdui-list-item-content">光照度</div>
-              <span><code>N / A</code></span>&nbsp;Lux
+              <span><code>{{ $store.state.dataholder.sensors.illu }}</code></span>&nbsp;Lux
             </li>
 
           </ul>

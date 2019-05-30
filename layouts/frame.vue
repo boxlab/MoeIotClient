@@ -99,7 +99,15 @@
           self.wsSend(self.makeRequest('ping'));
         }, 30 * 1000);
         self.DATAGETTER = setInterval(function () {
-          self.wsSend(self.makeRequest('get'));
+          self.wsSend(self.makeRequest('get', {
+            type: 'temp'
+          }));
+          self.wsSend(self.makeRequest('get', {
+            type: 'humi'
+          }));
+          self.wsSend(self.makeRequest('get', {
+            type: 'illu'
+          }));
         }, 1000);
       },
       handleOpen() {
@@ -107,12 +115,24 @@
         this.RECONNECTING = false;
       },
       handleMessage(e) {
-        // this.$message.info(e.data);
+        console.log(e.data);
         let data = JSON.parse(e.data);
         switch (data['type']) {
           case 'temp':
             this.$store.commit('dataholder/update', {
               key: 'temp',
+              value: data['data']['value'],
+            });
+            break;
+          case 'humi':
+            this.$store.commit('dataholder/update', {
+              key: 'humi',
+              value: data['data']['value'],
+            });
+            break;
+          case 'illu':
+            this.$store.commit('dataholder/update', {
+              key: 'illu',
               value: data['data']['value'],
             });
             break;
