@@ -5,7 +5,8 @@
         <div class="mdui-card mdui-p-a-2 mdui-m-b-2">
           <div class="mdui-row">
             <div class="mdui-col-xs-6" style="text-align: center;">
-              <a-progress type="dashboard" :percent="0" :format="percent => `${percent}℃`"/>
+              <a-progress type="dashboard" :percent="$store.state.dataholder.sensors.temp"
+                          :format="percent => `${percent}℃`"/>
               <p>温度</p>
             </div>
             <div class="mdui-col-xs-6" style="text-align: center;">

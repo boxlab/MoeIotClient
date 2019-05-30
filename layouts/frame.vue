@@ -50,6 +50,7 @@
         title: '',
         WEBSOCKET: null,
         HEARTBEAT: null,
+        DATAGETTER: null,
         SOCKET_SERVER: 'ws://localhost:18770',
         RECONNECTING: false,
       }
@@ -77,27 +78,47 @@
           try {
             self.WEBSOCKET = new WebSocket(self.SOCKET_SERVER);
           } catch (e) {
-            console.error('passed failed connection');
+            console.warn('Fail to connect to server');
           }
         }
-        self.WEBSOCKET.onopen = self.handleOpen;
-        self.WEBSOCKET.onmessage = self.handleMessage;
-        self.WEBSOCKET.onerror = self.handleError;
-        self.WEBSOCKET.onclose = self.handleClose;
+        if (self.WEBSOCKET !== null) {
+          self.WEBSOCKET.onopen = self.handleOpen;
+          self.WEBSOCKET.onmessage = self.handleMessage;
+          self.WEBSOCKET.onerror = self.handleError;
+          self.WEBSOCKET.onclose = self.handleClose;
+        }
         if (self.HEARTBEAT !== null) {
           clearInterval(self.HEARTBEAT);
           self.HEARTBEAT = null;
         }
+        if (self.DATAGETTER !== null) {
+          clearInterval(self.DATAGETTER);
+          self.DATAGETTER = null;
+        }
         self.HEARTBEAT = setInterval(function () {
           self.wsSend(self.makeRequest('ping'));
-        }, 30 * 1000)
+        }, 30 * 1000);
+        self.DATAGETTER = setInterval(function () {
+          self.wsSend(self.makeRequest('get'));
+        }, 1000);
       },
       handleOpen() {
         this.loading = false;
         this.RECONNECTING = false;
       },
       handleMessage(e) {
-        this.$message.info(e.data);
+        // this.$message.info(e.data);
+        let data = JSON.parse(e.data);
+        switch (data['type']) {
+          case 'temp':
+            this.$store.commit('dataholder/update', {
+              key: 'temp',
+              value: data['data']['value'],
+            });
+            break;
+          default:
+            break;
+        }
       },
       handleError() {
         this.loading = true;
@@ -118,15 +139,14 @@
           this.WEBSOCKET.send(JSON.stringify(data));
       },
       async wsReconnect() {
-        console.warn('Start reconnect');
         let self = this;
+        self.$message.info('正在重新连接服务器');
         let interval = setInterval(function () {
-          console.warn('loop...');
           if (self.loading) {
             self.WEBSOCKET = null;
             self.initWS();
-            console.warn('reconnect');
           } else {
+            self.$message.success('重新连接成功');
             clearInterval(interval);
           }
         }, 2000);
