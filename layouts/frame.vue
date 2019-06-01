@@ -51,7 +51,7 @@
         WEBSOCKET: null,
         HEARTBEAT: null,
         DATAGETTER: null,
-        SOCKET_SERVER: 'ws://localhost:18770',
+        SOCKET_SERVER: 'ws://192.168.0.101:18770',
         RECONNECTING: false,
       }
     },
@@ -109,11 +109,13 @@
             type: 'illu'
           }));
         }, 1000);
-      },
+      }
+      ,
       handleOpen() {
         this.loading = false;
         this.RECONNECTING = false;
-      },
+      }
+      ,
       handleMessage(e) {
         console.log(e.data);
         let data = JSON.parse(e.data);
@@ -123,6 +125,10 @@
               key: 'temp',
               value: data['data']['value'],
             });
+            this.$store.commit('dataholder/update', {
+              key: 'updated',
+              value: data['data']['updated'],
+            });
             break;
           case 'humi':
             this.$store.commit('dataholder/update', {
@@ -130,34 +136,32 @@
               value: data['data']['value'],
             });
             break;
-          case 'illu':
-            this.$store.commit('dataholder/update', {
-              key: 'illu',
-              value: data['data']['value'],
-            });
-            break;
           default:
             break;
         }
-      },
+      }
+      ,
       handleError() {
         this.loading = true;
         if (!this.RECONNECTING) {
           this.wsReconnect();
           this.RECONNECTING = true;
         }
-      },
+      }
+      ,
       handleClose(e) {
         this.loading = true;
         if (!this.RECONNECTING) {
           this.wsReconnect();
           this.RECONNECTING = true;
         }
-      },
+      }
+      ,
       wsSend(data) {
         if (this.WEBSOCKET !== null)
           this.WEBSOCKET.send(JSON.stringify(data));
-      },
+      }
+      ,
       async wsReconnect() {
         let self = this;
         self.$message.info('正在重新连接服务器');
@@ -170,14 +174,16 @@
             clearInterval(interval);
           }
         }, 2000);
-      },
+      }
+      ,
       makeRequest(action, data = null) {
         let request = {
           action: action,
           data: data === null ? '' : data
         };
         return request
-      },
+      }
+      ,
     },
     watch: {
       $route(to, from) {

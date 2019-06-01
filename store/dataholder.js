@@ -2,7 +2,7 @@ export const state = () => ({
   sensors: {
     temp: 0,
     humi: 0,
-    illu: 0,
+    updated: 0,
   }
 });
 
@@ -15,8 +15,8 @@ export const mutations = {
       case 'humi':
         state.sensors.humi = data.value;
         break;
-      case 'illu':
-        state.sensors.illu = data.value;
+      case 'updated':
+        state.sensors.updated = data.value;
         break;
       default:
         break;
