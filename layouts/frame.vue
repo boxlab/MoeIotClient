@@ -115,14 +115,14 @@
           }));
         }, 1000);
         self.SENDER_QUEUE = setInterval(function () {
-          let queue = self.$store.state.dataholder.sendQueue
+          let queue = self.$store.state.dataholder.sendQueue;
           if (queue.length !== 0) {
             for (let i = 0; i < queue.length; i++) {
               self.wsSend(queue[i]);
             }
             self.$store.commit('dataholder/Queue_flush');
           }
-        }, 1000);
+        }, 100);
       }
       ,
       handleOpen() {
@@ -131,7 +131,7 @@
       }
       ,
       handleMessage(e) {
-        console.log(e.data);
+        // console.log(e.data);
         let data = JSON.parse(e.data);
         switch (data['type']) {
           case 'temp':

@@ -27,10 +27,10 @@
     data() {
       return {
         ActuatorsList: [
-          {name: 'Actuator #1', id: 1, icon: 'lightbulb_outline'},
-          {name: 'Actuator #2', id: 2, icon: 'lightbulb_outline'},
-          {name: 'Actuator #3', id: 3, icon: 'lightbulb_outline'},
-          {name: 'Actuator #4', id: 4, icon: 'lightbulb_outline'},
+          {name: '书桌台灯', id: 1, icon: 'lightbulb_outline'},
+          {name: '书桌风扇', id: 2, icon: 'settings_power'},
+          {name: 'Actuator #3', id: 3, icon: 'settings_power'},
+          {name: 'Actuator #4', id: 4, icon: 'settings_power'},
         ]
       }
     },
@@ -43,10 +43,12 @@
       },
       doActuator(id) {
         let state_now = this.$store.state.dataholder.sensors.swstate[id - 1];
+        let state_after = (state_now === 1) ? 0 : 1;
         this.$store.commit('dataholder/Queue_add', this.makeRequest('set', {
           id: id,
-          state: (state_now === 1) ? 0 : 1
+          state: state_after
         }));
+        this.$message.info(this.ActuatorsList[id - 1].name + (state_after === 1 ? '已打开' : '已关闭'));
       },
     }
   }
