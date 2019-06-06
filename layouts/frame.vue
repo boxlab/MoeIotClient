@@ -51,6 +51,7 @@
         WEBSOCKET: null,
         HEARTBEAT: null,
         DATAGETTER: null,
+        SENDER_QUEUE: null,
         SOCKET_SERVER: 'ws://192.168.0.101:18770',
         RECONNECTING: false,
       }
@@ -95,6 +96,10 @@
           clearInterval(self.DATAGETTER);
           self.DATAGETTER = null;
         }
+        if (self.SENDER_QUEUE !== null) {
+          clearInterval(self.SENDER_QUEUE);
+          self.SENDER_QUEUE = null;
+        }
         self.HEARTBEAT = setInterval(function () {
           self.wsSend(self.makeRequest('ping'));
         }, 30 * 1000);
@@ -106,8 +111,17 @@
             type: 'humi'
           }));
           self.wsSend(self.makeRequest('get', {
-            type: 'illu'
+            type: 'swstate',
           }));
+        }, 1000);
+        self.SENDER_QUEUE = setInterval(function () {
+          let queue = self.$store.state.dataholder.sendQueue
+          if (queue.length !== 0) {
+            for (let i = 0; i < queue.length; i++) {
+              self.wsSend(queue[i]);
+            }
+            self.$store.commit('dataholder/Queue_flush');
+          }
         }, 1000);
       }
       ,
@@ -134,6 +148,12 @@
             this.$store.commit('dataholder/update', {
               key: 'humi',
               value: data['data']['value'],
+            });
+            break;
+          case 'swstate':
+            this.$store.commit('dataholder/update', {
+              key: 'swstate',
+              value: data['data'],
             });
             break;
           default:
@@ -183,7 +203,6 @@
         };
         return request
       }
-      ,
     },
     watch: {
       $route(to, from) {
